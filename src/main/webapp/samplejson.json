@@ -1,0 +1,11 @@
+{
+	"requestURI": {
+		"reqURL": "http://www.google.com",
+		"reqMethod": "GET",
+		"reqHeader": {
+			"User-Agent": "Mozilla/5.0"
+		},
+		"reqPayload": ""
+	},
+	"lockPathID": "12345"
+}
