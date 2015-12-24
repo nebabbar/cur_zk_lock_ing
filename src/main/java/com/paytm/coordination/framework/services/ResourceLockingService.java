@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
 
@@ -19,9 +20,11 @@ import com.paytm.coordination.framework.model.v1.res.LockResponse;
 
 public class ResourceLockingService {
 	
+	private static final Logger log = Logger.getLogger("ResourceLockingService.class");
 	private InterProcessMutex lock;
 	private com.paytm.coordination.framework.model.v1.req.LockRequest lockReq;
-	
+	private static final String connectionString = "pawslmktcoordzkpr01:2181,pawslmktcoordzkpr02:2181,pawslmktcoordzkpr03:2181";
+		
 	public ResourceLockingService(LockRequest lockReq) {
 		super();
 		this.lockReq = lockReq;
@@ -29,8 +32,10 @@ public class ResourceLockingService {
 	
 	public LockResponse dowork() throws Exception{
     	
-    	LockResponse response;
-        CuratorFramework client = CuratorFrameworkFactory.newClient("localhost:2181", new ExponentialBackoffRetry(1000, 3));
+		long i = System.currentTimeMillis();
+		log.info("Begin Work");
+    	LockResponse response = new LockResponse();
+        CuratorFramework client = CuratorFrameworkFactory.newClient(connectionString, new ExponentialBackoffRetry(1000, 3));
         try{
 	        client.start();
 	        lock = new InterProcessMutex(client, "/"+lockReq.getLockPathID());
@@ -43,8 +48,8 @@ public class ResourceLockingService {
 	        {
 	            System.out.println("lock acquired");
 	            System.out.println("working(sleeping)...");
-	            response = sendGetRequest();
-	            Thread.sleep(12000);
+	            //response.setResStr("OK");;//sendGetRequest();
+	            Thread.sleep(100);
 	            System.out.println("awake");
 	        }
 	        finally
@@ -57,6 +62,7 @@ public class ResourceLockingService {
         finally
         {
         	IOUtils.closeQuietly(client);
+        	System.out.println("Time taken: "+(float)(System.currentTimeMillis()-i)/1000);
         }
         return response;
     }

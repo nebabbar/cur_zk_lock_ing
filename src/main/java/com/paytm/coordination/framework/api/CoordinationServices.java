@@ -27,7 +27,7 @@ public class CoordinationServices {
 			e.printStackTrace();
 		}
 		
-		return Response.status(201).entity(res).build();
+		return Response.status(201).entity(res.getResStr()).build();   // you can send the LockResponse object as well
 		
 	} 
 
